@@ -45,7 +45,7 @@ class FakeEmbedder:
     def recommended_threshold(self) -> float:
         # The hashed bag-of-words scale is lower than a real model's; this keeps
         # offline retrieval usable while still rejecting off-topic queries.
-        return 0.22
+        return 0.30
 
     def _vector(self, text: str) -> list[float]:
         vec = [0.0] * self._dimensions

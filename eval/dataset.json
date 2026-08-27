@@ -1,33 +1,93 @@
 {
-  "description": "Labelled evaluation set for the sample vault. Each item pins the note that should be retrieved and cited, plus reference facts for faithfulness checks.",
+  "description": "Labelled retrieval set spanning definitions, implementation decisions, trade-offs, and negative questions in the demo vault.",
   "cases": [
     {
       "id": "rag-definition",
       "question": "What is RAG?",
       "expected_source": "RAG.md",
-      "reference_terms": ["retrieval", "generation", "grounds", "knowledge"]
+      "reference_terms": ["retrieval", "generation", "grounds"]
     },
     {
       "id": "rag-metrics",
       "question": "What metrics did I mention for evaluating RAG?",
       "expected_source": "RAG Evaluation.md",
-      "reference_terms": ["relevance", "faithfulness", "source correctness"]
+      "reference_terms": ["retrieval relevance", "source correctness", "faithfulness"]
     },
     {
       "id": "embeddings-similarity",
       "question": "How are two embeddings compared for similarity?",
       "expected_source": "Embeddings.md",
-      "reference_terms": ["cosine", "similarity"]
+      "reference_terms": ["cosine similarity", "near 1"]
     },
     {
-      "id": "chromadb",
-      "question": "Which vector database do my notes describe and what does it support?",
+      "id": "chromadb-capabilities",
+      "question": "Which vector database does the prototype use and what does it support?",
       "expected_source": "Vector Database.md",
-      "reference_terms": ["chromadb", "persistence", "cosine"]
+      "reference_terms": ["ChromaDB", "persistence", "metadata filtering"]
     },
     {
-      "id": "no-answer",
+      "id": "structure-aware-chunking",
+      "question": "Why do I split Markdown by headings before applying the chunk size limit?",
+      "expected_source": "Chunking Strategies.md",
+      "reference_terms": ["semantic boundaries", "sections", "unrelated"]
+    },
+    {
+      "id": "chunk-overlap-tradeoff",
+      "question": "What chunk overlap did I choose and what trade-off does overlap create?",
+      "expected_source": "Chunking Strategies.md",
+      "reference_terms": ["200-character", "boundary", "duplicate"]
+    },
+    {
+      "id": "semantic-keyword-strengths",
+      "question": "Where can keyword search outperform dense semantic search?",
+      "expected_source": "Semantic Search.md",
+      "reference_terms": ["identifiers", "error codes", "rare names"]
+    },
+    {
+      "id": "hybrid-fusion",
+      "question": "How can dense and keyword result lists be combined without comparing their raw scores?",
+      "expected_source": "Hybrid Retrieval.md",
+      "reference_terms": ["Reciprocal Rank Fusion", "ranked list"]
+    },
+    {
+      "id": "reranker-decision",
+      "question": "When would adding a cross-encoder reranker become justified?",
+      "expected_source": "Reranking.md",
+      "reference_terms": ["top-k", "rank first", "latency"]
+    },
+    {
+      "id": "grounding-protections",
+      "question": "What two layers protect the assistant from unsupported answers?",
+      "expected_source": "Grounding and Hallucination.md",
+      "reference_terms": ["relevance gate", "generation prompt", "citations"]
+    },
+    {
+      "id": "threshold-calibration",
+      "question": "How was the Gemini retrieval threshold calibrated and what value was selected?",
+      "expected_source": "Retrieval Thresholds.md",
+      "reference_terms": ["0.65", "answerable", "unanswerable"]
+    },
+    {
+      "id": "deployment-boundary",
+      "question": "Why can local Chroma persistence not be used unchanged on Vercel?",
+      "expected_source": "Obsidian RAG Assistant.md",
+      "reference_terms": ["serverless", "ephemeral", "hosted vector store"]
+    },
+    {
+      "id": "no-answer-travel",
       "question": "What did I write about my summer travel plans to Japan?",
+      "expected_source": null,
+      "reference_terms": []
+    },
+    {
+      "id": "no-answer-compensation",
+      "question": "What annual salary and joining bonus did my employer offer me?",
+      "expected_source": null,
+      "reference_terms": []
+    },
+    {
+      "id": "no-answer-appointment",
+      "question": "When is my next dentist appointment and which clinic is it at?",
       "expected_source": null,
       "reference_terms": []
     }

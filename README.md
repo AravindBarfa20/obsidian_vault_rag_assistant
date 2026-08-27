@@ -88,7 +88,7 @@ app/
 frontend/           # dependency-free editorial chat interface
 scripts/ingest.py  # CLI / build-time ingestion
 eval/              # labelled dataset + evaluation harness
-sample_vault/      # synthetic Obsidian notes
+sample_vault/      # interlinked engineering knowledge base
 docs/              # architecture + deployment notes
 ```
 
@@ -211,23 +211,25 @@ are condensed into a standalone query before retrieval (kept deliberately simple
 
 A labelled set lives in [eval/dataset.json](eval/dataset.json); the transparent
 harness in [eval/evaluate.py](eval/evaluate.py) measures **retrieval recall@k**,
-**source correctness**, **answer faithfulness**, **answer relevance**, and
-**no-answer accuracy**.
+**top-source accuracy**, **context-term coverage**, and **no-answer accuracy**.
+It evaluates retrieval directly, so repeated runs do not spend LLM generation
+quota or mislabel citation presence as claim-level faithfulness.
 
 ```bash
 python -m eval.evaluate
 ```
 
-Latest verified live baseline (Gemini, 2026-08-28): **100%** retrieval
-recall@k, source correctness, heuristic faithfulness, answer relevance, and
-no-answer accuracy across the five labelled sample cases. This is a small
-integration baseline, not a claim of production accuracy on arbitrary vaults.
+Latest verified live baseline (Gemini embeddings, 2026-08-28): **100%**
+retrieval recall@k, top-source accuracy, context-term coverage, and no-answer
+accuracy across 15 labelled cases (12 answerable, 3 negative). The 12-note demo
+vault produces 40 structure-aware chunks. This is an integration baseline, not
+a claim of production accuracy on arbitrary vaults.
 
 > **Honest note:** run **offline**, source-correctness is imperfect because the
 > deterministic fake embedder is a weak bag-of-words stand-in — this is shown,
-> not hidden. With a real `GEMINI_API_KEY` the embedding quality (and these
-> numbers) improve substantially. The point of the harness is that the system is
-> *measured*, not assumed accurate.
+> not hidden. Real Gemini results should be recorded before changing retrieval
+> thresholds. The point of the harness is that the system is *measured*, not
+> assumed accurate.
 
 ## Security
 

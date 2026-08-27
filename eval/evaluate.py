@@ -1,17 +1,16 @@
-"""Small RAG evaluation harness.
+"""Transparent retrieval and no-answer evaluation harness.
 
-Measures the four things that matter for this system, over a labelled set:
+Measures the retrieval behaviours that can be checked deterministically over a
+labelled set without spending generation quota:
 
-  * retrieval relevance -- did the expected note appear in the top-k?
-  * source correctness  -- is the top-cited note the expected one?
-  * answer faithfulness -- (heuristic) does the answer draw on the retrieved
-                           context and avoid answering when it shouldn't?
-  * answer relevance    -- does a grounded answer mention reference terms?
-  * no-answer accuracy  -- are unanswerable questions correctly declined?
+  * retrieval recall@k   -- did the expected note appear in the selected set?
+  * top-source accuracy  -- was the expected note ranked first?
+  * context term coverage -- did the selected evidence contain labelled facts?
+  * no-answer accuracy   -- did negative questions fail the relevance gate?
 
-Runs offline with the fake providers by default; set GEMINI_API_KEY to evaluate
-the real pipeline. This harness is deliberately transparent -- no hidden metric
-library -- so every number can be traced to a check.
+Set GEMINI_API_KEY to evaluate real embeddings; omit it for the deterministic
+offline provider. Answer generation is tested separately because citation
+presence is not the same as claim-level faithfulness.
 """
 
 from __future__ import annotations
@@ -37,59 +36,59 @@ def run() -> dict:
     configure_logging("WARNING")
     container = Container(settings)
     ingest_vault(settings.vault_dir, container.store, container.embedder, settings)
-    service = container.answer_service
+    retriever = container.retriever
 
     cases = json.loads(DATASET.read_text())["cases"]
     answerable = [c for c in cases if c["expected_source"]]
     unanswerable = [c for c in cases if not c["expected_source"]]
 
-    hit_at_k = source_correct = faithful = relevant = no_answer_correct = 0
+    hit_at_k = top_source_correct = context_covered = no_answer_correct = 0
     rows: list[dict] = []
 
     for case in cases:
-        result = service.answer(case["question"], top_k=settings.top_k)
-        top_source = result.sources[0].source if result.sources else None
-        retrieved = {s.source for s in result.sources}
+        result = retriever.retrieve(case["question"], top_k=settings.top_k)
+        top_source = result.chunks[0].source if result.chunks else None
+        retrieved = {chunk.source for chunk in result.chunks}
 
         if case["expected_source"] is None:
-            correct = not result.grounded
+            correct = not result.has_grounding
             no_answer_correct += int(correct)
             rows.append(
-                {"id": case["id"], "type": "no-answer", "grounded": result.grounded,
-                 "pass": correct}
+                {"id": case["id"], "type": "no-answer",
+                 "top_relevance": round(result.top_relevance, 4), "pass": correct}
             )
             continue
 
         expected = case["expected_source"]
         in_topk = expected in retrieved
         top_ok = top_source == expected
-        # Faithfulness (heuristic, offline-safe): a grounded answer must cite at
-        # least one source and must have retrieved the expected note.
-        is_faithful = result.grounded and bool(result.sources) and in_topk
         terms = case.get("reference_terms", [])
-        context_text = " ".join(s.snippet.lower() for s in result.sources)
-        is_relevant = any(t.lower() in context_text for t in terms) if terms else result.grounded
+        context_text = " ".join(chunk.text.lower() for chunk in result.chunks)
+        has_reference_terms = (
+            all(term.lower() in context_text for term in terms)
+            if terms else result.has_grounding
+        )
 
         hit_at_k += int(in_topk)
-        source_correct += int(top_ok)
-        faithful += int(is_faithful)
-        relevant += int(is_relevant)
+        top_source_correct += int(top_ok)
+        context_covered += int(has_reference_terms)
         rows.append(
             {"id": case["id"], "expected": expected, "top": top_source,
-             "in_topk": in_topk, "top_ok": top_ok, "faithful": is_faithful,
-             "relevant": is_relevant}
+             "in_topk": in_topk, "top_ok": top_ok,
+             "context_terms": has_reference_terms,
+             "top_relevance": round(result.top_relevance, 4)}
         )
 
     n_ans = len(answerable)
     summary = {
         "cases": len(cases),
+        "answerable_cases": n_ans,
+        "no_answer_cases": len(unanswerable),
         "retrieval_recall@k": _pct(hit_at_k, n_ans),
-        "source_correctness": _pct(source_correct, n_ans),
-        "answer_faithfulness": _pct(faithful, n_ans),
-        "answer_relevance": _pct(relevant, n_ans),
+        "top_source_accuracy": _pct(top_source_correct, n_ans),
+        "context_term_coverage": _pct(context_covered, n_ans),
         "no_answer_accuracy": _pct(no_answer_correct, len(unanswerable)),
         "embedding_model": container.embedder.model_name,
-        "llm_model": container.llm.model_name,
     }
     return {"summary": summary, "rows": rows}
 
