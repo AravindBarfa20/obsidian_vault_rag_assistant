@@ -11,6 +11,14 @@ generic "chat with documents" demo.
 
 ---
 
+## Product preview
+
+![Fieldnotes answering a RAG question with inline citations and supporting note passages](docs/assets/fieldnotes-grounded-answer.png)
+
+*A grounded answer with traceable evidence from the indexed Obsidian vault.*
+
+---
+
 ## Problem statement
 
 Notes in an Obsidian vault hold real knowledge, but that knowledge is inert:
