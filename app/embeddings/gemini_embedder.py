@@ -27,7 +27,7 @@ class GeminiEmbedder:
         dimensions: int = 768,
         batch_size: int = 32,
         max_retries: int = 4,
-        recommended_threshold: float = 0.55,
+        recommended_threshold: float = 0.65,
     ) -> None:
         if not api_key:
             raise ConfigurationError("GEMINI_API_KEY is required for embeddings.")

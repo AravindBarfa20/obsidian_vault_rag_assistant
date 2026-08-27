@@ -61,7 +61,7 @@ separate interfaces and are never conflated.
 |--------|--------|-----|
 | API | FastAPI + Pydantic | Typed, self-documenting (`/docs`), async-ready, Vercel-friendly |
 | Embeddings | `gemini-embedding-001` | Current GA Gemini embedding model; asymmetric `RETRIEVAL_DOCUMENT`/`RETRIEVAL_QUERY` task types improve retrieval quality; Matryoshka dimensions |
-| LLM | `gemini-2.5-flash` | Fast, cheap, strong instruction-following for grounded generation |
+| LLM | `gemini-3.6-flash` | Current Flash model; fast and strong at grounded instruction-following |
 | Vector store | ChromaDB (`PersistentClient`, cosine) | Lightweight, persistent, metadata filtering; ideal for a local RAG prototype |
 | Markdown | Custom Obsidian-aware parser | Preserves headings/sections/code, extracts tags + `[[wikilinks]]` |
 
@@ -114,7 +114,7 @@ All configuration is environment-driven (see `.env.example`). Key ones:
 | `GEMINI_API_KEY` | *(empty)* | Google AI Studio key. Empty ⇒ offline fake providers. |
 | `EMBEDDING_MODEL` | `gemini-embedding-001` | Embedding model. |
 | `EMBEDDING_DIMENSIONS` | `768` | Truncated embedding size (Matryoshka). |
-| `LLM_MODEL` | `gemini-2.5-flash` | Generation model. |
+| `LLM_MODEL` | `gemini-3.6-flash` | Generation model. |
 | `VAULT_DIR` | `./sample_vault` | Vault root; also the filesystem access boundary. |
 | `CHUNK_SIZE` / `CHUNK_OVERLAP` | `1400` / `200` | Chunking (characters). |
 | `CHROMA_DIR` | `./.chroma` | Vector store persistence dir. |
@@ -168,7 +168,7 @@ Example `/query` response:
      "path": "concepts/RAG Evaluation.md", "relevance": 0.83, "snippet": "..."}
   ],
   "query_used": "What metrics did I mention for evaluating RAG?",
-  "model": "gemini-2.5-flash"
+  "model": "gemini-3.6-flash"
 }
 ```
 
@@ -216,6 +216,11 @@ harness in [eval/evaluate.py](eval/evaluate.py) measures **retrieval recall@k**,
 ```bash
 python -m eval.evaluate
 ```
+
+Latest verified live baseline (Gemini, 2026-08-28): **100%** retrieval
+recall@k, source correctness, heuristic faithfulness, answer relevance, and
+no-answer accuracy across the five labelled sample cases. This is a small
+integration baseline, not a claim of production accuracy on arbitrary vaults.
 
 > **Honest note:** run **offline**, source-correctness is imperfect because the
 > deterministic fake embedder is a weak bag-of-words stand-in — this is shown,

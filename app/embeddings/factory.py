@@ -24,7 +24,6 @@ def build_embedder(settings: Settings) -> EmbeddingProvider:
             model_name=settings.embedding_model,
             dimensions=settings.embedding_dimensions,
             batch_size=settings.embedding_batch_size,
-            recommended_threshold=settings.relevance_threshold or 0.55,
         )
 
     from app.embeddings.fake_embedder import FakeEmbedder

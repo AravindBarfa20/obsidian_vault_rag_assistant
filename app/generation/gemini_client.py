@@ -1,4 +1,4 @@
-"""Thin Gemini generation client (gemini-2.5-flash).
+"""Thin Gemini generation client (Gemini Flash).
 
 Isolated behind a small surface so generation is swappable and testable. It is
 only responsible for turning (system prompt, user prompt) into text; retrieval
@@ -17,7 +17,7 @@ class GeminiClient:
     def __init__(
         self,
         api_key: str,
-        model_name: str = "gemini-2.5-flash",
+        model_name: str = "gemini-3.6-flash",
         temperature: float = 0.0,
         max_output_tokens: int = 2048,
     ) -> None:
@@ -45,6 +45,11 @@ class GeminiClient:
                     system_instruction=system_prompt,
                     temperature=self._temperature,
                     max_output_tokens=self._max_output_tokens,
+                    # This RAG client does not expose tools. Disabling AFC
+                    # avoids SDK warnings and keeps generation deterministic.
+                    automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                        disable=True
+                    ),
                 ),
             )
         except Exception as exc:
