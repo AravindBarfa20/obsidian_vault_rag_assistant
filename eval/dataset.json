@@ -1,0 +1,35 @@
+{
+  "description": "Labelled evaluation set for the sample vault. Each item pins the note that should be retrieved and cited, plus reference facts for faithfulness checks.",
+  "cases": [
+    {
+      "id": "rag-definition",
+      "question": "What is RAG?",
+      "expected_source": "RAG.md",
+      "reference_terms": ["retrieval", "generation", "grounds", "knowledge"]
+    },
+    {
+      "id": "rag-metrics",
+      "question": "What metrics did I mention for evaluating RAG?",
+      "expected_source": "RAG Evaluation.md",
+      "reference_terms": ["relevance", "faithfulness", "source correctness"]
+    },
+    {
+      "id": "embeddings-similarity",
+      "question": "How are two embeddings compared for similarity?",
+      "expected_source": "Embeddings.md",
+      "reference_terms": ["cosine", "similarity"]
+    },
+    {
+      "id": "chromadb",
+      "question": "Which vector database do my notes describe and what does it support?",
+      "expected_source": "Vector Database.md",
+      "reference_terms": ["chromadb", "persistence", "cosine"]
+    },
+    {
+      "id": "no-answer",
+      "question": "What did I write about my summer travel plans to Japan?",
+      "expected_source": null,
+      "reference_terms": []
+    }
+  ]
+}

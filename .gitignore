@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+.chroma/
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+*.ses
+sample_vault/.obsidian/
+
+# Kept local by request; production repository excludes test sources.
+tests/

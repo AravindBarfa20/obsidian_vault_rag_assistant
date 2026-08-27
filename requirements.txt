@@ -1,0 +1,18 @@
+# --- API layer ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# --- LLM + embeddings (Gemini, current unified SDK) ---
+google-genai==1.2.0
+
+# --- Vector store ---
+chromadb==0.6.3
+# Chroma 0.6.x still calls PostHog's legacy positional capture API.
+# PostHog 6+ removed that signature, causing noisy telemetry errors even when
+# anonymized telemetry is disabled.
+posthog>=2.4.0,<6.0.0
+
+# --- Markdown frontmatter ---
+PyYAML==6.0.2
