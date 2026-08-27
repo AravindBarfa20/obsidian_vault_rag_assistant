@@ -88,7 +88,6 @@ app/
 frontend/           # dependency-free editorial chat interface
 scripts/ingest.py  # CLI / build-time ingestion
 eval/              # labelled dataset + evaluation harness
-tests/             # pytest suite (offline)
 sample_vault/      # synthetic Obsidian notes
 docs/              # architecture + deployment notes
 ```
@@ -102,7 +101,7 @@ Requires Python 3.11+.
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements-dev.txt      # or requirements.txt for runtime only
+pip install -r requirements.txt
 cp .env.example .env                      # optional; add GEMINI_API_KEY for real answers
 ```
 
@@ -229,17 +228,6 @@ integration baseline, not a claim of production accuracy on arbitrary vaults.
 > not hidden. With a real `GEMINI_API_KEY` the embedding quality (and these
 > numbers) improve substantially. The point of the harness is that the system is
 > *measured*, not assumed accurate.
-
-## Testing
-
-```bash
-pytest
-```
-
-31 offline tests cover Markdown loading, chunking, metadata extraction, the
-embedding interface, vector retrieval, source attribution, no-answer behaviour
-(including that the **LLM is not called** without grounding), path-traversal
-rejection, and API validation.
 
 ## Security
 

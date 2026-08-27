@@ -26,7 +26,7 @@
         <a href="/docs" target="_blank" rel="noreferrer">API</a>
         <span class="health-pill" id="health-pill">
           <span class="health-dot" aria-hidden="true"></span>
-          <span id="health-label">Connecting</span>
+          <span id="health-label">Checking status</span>
         </span>
       </nav>
     </header>
@@ -83,7 +83,7 @@
               <p class="eyebrow">Research conversation</p>
               <h2 id="conversation-title">What would you like to uncover?</h2>
             </div>
-            <button class="clear-button" id="clear-chat" type="button">Clear thread</button>
+            <button class="clear-button" id="clear-chat" type="button" disabled>Clear thread</button>
           </div>
 
           <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions">
@@ -126,7 +126,7 @@
             </div>
             <div class="composer-meta">
               <span>Enter to send · Shift + Enter for a new line</span>
-              <span id="model-label">Grounded by your vault</span>
+              <span id="model-label">Answers grounded in indexed notes</span>
             </div>
           </form>
         </section>
@@ -139,7 +139,7 @@
         <p>Retrieval → verify → generate → cite.</p>
       </div>
       <div class="footer-details">
-        <span>Private by architecture</span>
+        <span>Local vector index · cited generation</span>
         <span>FastAPI · Gemini · ChromaDB</span>
       </div>
     </footer>

@@ -230,7 +230,7 @@ h1 span {
   font-weight: 600;
 }
 .source-title span:last-child { color: var(--cloud-dark); font-size: 10px; font-weight: 500; white-space: nowrap; }
-.source-path { color: var(--cloud-dark); font-family: var(--mono); font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.source-descriptor { color: var(--cloud-dark); font-family: var(--sans); font-size: 9px; letter-spacing: .02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .source-skeleton { height: 48px; border-bottom: 1px solid rgba(20,20,19,.12); opacity: .45; }
 .source-skeleton::before { content: ""; display: block; width: 75%; height: 8px; margin-top: 14px; background: var(--cloud); animation: pulse 1.5s ease-in-out infinite; }
 .source-skeleton.short::before { width: 52%; }
@@ -272,6 +272,7 @@ h1 span {
   font-size: 11px;
   cursor: pointer;
 }
+.clear-button:disabled { visibility: hidden; }
 
 .messages {
   min-height: 390px;
@@ -316,8 +317,16 @@ h1 span {
 }
 .message-label { margin-bottom: 8px; font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
 .message-assistant { padding-bottom: 28px; border-bottom: 1px solid var(--stone); }
-.message-assistant .message-body { max-width: 760px; font-size: 20px; line-height: 1.52; white-space: pre-wrap; }
+.message-assistant .message-body { max-width: 760px; font-size: 20px; line-height: 1.52; }
+.message-assistant .message-body p { margin: 0 0 14px; }
+.message-assistant .message-body p:last-child { margin-bottom: 0; }
+.message-assistant .message-body ul,
+.message-assistant .message-body ol { margin: 8px 0 16px; padding-left: 25px; }
+.message-assistant .message-body li { margin: 8px 0; padding-left: 5px; }
+.message-assistant .message-body strong { font-weight: 600; }
+.message-assistant .message-body code { padding: 2px 5px; background: var(--oat); font-family: var(--mono); font-size: .78em; }
 .message-assistant.ungrounded .message-body { color: var(--slate-medium); font-style: italic; }
+.message-assistant.service-error .message-label { color: var(--clay-deep); }
 
 .citation-ref {
   display: inline;
@@ -332,6 +341,7 @@ h1 span {
   cursor: pointer;
 }
 .answer-meta { margin-top: 14px; color: var(--cloud-dark); font-family: var(--sans); font-size: 10px; }
+.evidence-heading { margin-top: 22px; font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .citation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
 .citation-card {
   padding: 16px;

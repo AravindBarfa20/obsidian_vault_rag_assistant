@@ -14,3 +14,5 @@ sample_vault/.obsidian/
 
 # Kept local by request; production repository excludes test sources.
 tests/
+pytest.ini
+requirements-dev.txt
