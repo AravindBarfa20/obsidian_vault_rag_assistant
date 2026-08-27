@@ -1,6 +1,6 @@
 # Obsidian Vault RAG Knowledge Assistant
 
-A production-quality **RAG** (Retrieval-Augmented Generation) backend that lets
+A production-quality **RAG** (Retrieval-Augmented Generation) application that lets
 you ask natural-language questions about your personal **Obsidian** Markdown
 vault and get **grounded answers with source attribution**.
 
@@ -85,6 +85,7 @@ app/
 ├── retrieval/     # query embedding, relevance gate, diversity
 ├── generation/    # prompt, query condensation, LLM, answer service
 └── main.py        # app composition
+frontend/           # dependency-free editorial chat interface
 scripts/ingest.py  # CLI / build-time ingestion
 eval/              # labelled dataset + evaluation harness
 tests/             # pytest suite (offline)
@@ -143,6 +144,7 @@ uvicorn app.main:app --reload
 ```
 
 Open interactive docs at **http://localhost:8000/docs**.
+Open the knowledge assistant at **http://localhost:8000/**.
 
 ### 3. Query
 
@@ -271,8 +273,9 @@ silently replaced.
 
 ## Frontend
 
-Intentionally **not built** in this deliverable (per spec). The backend exposes
-clean, typed, documented APIs for a separate frontend. The provided Anthropic
-style reference is saved at
-[docs/frontend-style-reference.md](docs/frontend-style-reference.md) for that
-phase.
+The same FastAPI process serves a responsive, dependency-free interface at `/`.
+It includes live provider health, indexed-source browsing, incremental re-ingest,
+multi-turn questions, grounded/no-answer states, and clickable `[S#]` citation
+cards. The visual system follows the warm parchment, editorial serif/sans, and
+single-clay-accent direction documented in
+[docs/frontend-style-reference.md](docs/frontend-style-reference.md).

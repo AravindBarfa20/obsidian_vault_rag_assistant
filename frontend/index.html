@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f0eee6" />
+    <meta
+      name="description"
+      content="Ask grounded questions across your Obsidian vault with source citations."
+    />
+    <title>Fieldnotes — Obsidian Knowledge Assistant</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#conversation">Skip to conversation</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Fieldnotes home">
+        <span class="wordmark-mark" aria-hidden="true">F</span>
+        <span>Fieldnotes</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#library">Library</a>
+        <a href="/docs" target="_blank" rel="noreferrer">API</a>
+        <span class="health-pill" id="health-pill">
+          <span class="health-dot" aria-hidden="true"></span>
+          <span id="health-label">Connecting</span>
+        </span>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Obsidian knowledge, made conversational</p>
+          <h1 id="hero-title">Ask your notes.<br /><span>Trace every answer.</span></h1>
+        </div>
+        <div class="hero-aside">
+          <p>
+            A quiet research companion that retrieves evidence from your vault,
+            writes only what your notes support, and leaves a trail back to every source.
+          </p>
+          <div class="hero-meta" aria-label="System summary">
+            <span id="hero-notes">— notes</span>
+            <span id="hero-chunks">— passages</span>
+            <span>grounded citations</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace" aria-label="Knowledge assistant workspace">
+        <aside class="library-panel" id="library">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Indexed library</p>
+              <h2>Your field notes</h2>
+            </div>
+            <button class="icon-button" id="refresh-sources" type="button" title="Refresh sources" aria-label="Refresh source list">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" /></svg>
+            </button>
+          </div>
+          <div class="library-summary">
+            <strong id="source-count">—</strong>
+            <span>notes currently searchable</span>
+          </div>
+          <div class="source-list" id="source-list" aria-live="polite">
+            <div class="source-skeleton"></div>
+            <div class="source-skeleton short"></div>
+            <div class="source-skeleton"></div>
+          </div>
+          <button class="reindex-button" id="reindex-button" type="button">
+            <span>Refresh vault index</span>
+            <span aria-hidden="true">↗</span>
+          </button>
+          <p class="library-footnote">Only changed notes are embedded again.</p>
+        </aside>
+
+        <section class="conversation-card" id="conversation" aria-labelledby="conversation-title">
+          <div class="conversation-header">
+            <div>
+              <p class="eyebrow">Research conversation</p>
+              <h2 id="conversation-title">What would you like to uncover?</h2>
+            </div>
+            <button class="clear-button" id="clear-chat" type="button">Clear thread</button>
+          </div>
+
+          <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions">
+            <article class="welcome-note" id="welcome-note">
+              <div class="specimen-mark" aria-hidden="true">
+                <svg viewBox="0 0 140 140">
+                  <circle cx="70" cy="70" r="47" />
+                  <path d="M70 20v100M20 70h100M36 36l68 68M104 36l-68 68" />
+                  <circle cx="70" cy="70" r="12" />
+                </svg>
+              </div>
+              <p>
+                Begin with a question. I’ll search the meaning of your notes—not just
+                their filenames—and show the passages behind the response.
+              </p>
+              <div class="suggestions" aria-label="Suggested questions">
+                <button type="button" data-question="What is RAG and why is retrieval important?">Explain a concept</button>
+                <button type="button" data-question="What metrics did I mention for evaluating RAG?">Find my evaluation metrics</button>
+                <button type="button" data-question="How are two embeddings compared for similarity?">Connect ideas across notes</button>
+              </div>
+            </article>
+          </div>
+
+          <form class="composer" id="query-form">
+            <label for="question-input">Ask your vault</label>
+            <div class="composer-row">
+              <textarea
+                id="question-input"
+                name="question"
+                rows="1"
+                maxlength="4000"
+                placeholder="Ask a question about your notes…"
+                autocomplete="off"
+                required
+              ></textarea>
+              <button class="ask-button" id="ask-button" type="submit">
+                <span>Ask</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-4 14-3-6-7-1Z" /></svg>
+              </button>
+            </div>
+            <div class="composer-meta">
+              <span>Enter to send · Shift + Enter for a new line</span>
+              <span id="model-label">Grounded by your vault</span>
+            </div>
+          </form>
+        </section>
+      </section>
+    </main>
+
+    <footer>
+      <div>
+        <p class="footer-mark">FIELDNOTES / RAG</p>
+        <p>Retrieval → verify → generate → cite.</p>
+      </div>
+      <div class="footer-details">
+        <span>Private by architecture</span>
+        <span>FastAPI · Gemini · ChromaDB</span>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

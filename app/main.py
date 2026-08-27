@@ -6,9 +6,12 @@ behaviour lives in the layered services, so this file is composition only.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.dependencies import Container
 from app.api.routes import router
@@ -51,6 +54,16 @@ def create_app() -> FastAPI:
         )
 
     app.include_router(router)
+
+    # Keep the frontend dependency-free and serve it from the same origin as
+    # the API. This avoids a second dev server and any production CORS coupling.
+    frontend_dir = Path(__file__).resolve().parents[1] / "frontend"
+    app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
+
+    @app.get("/", include_in_schema=False)
+    async def frontend() -> FileResponse:
+        return FileResponse(frontend_dir / "index.html")
+
     logger.info(
         "App ready (embeddings=%s, gemini_configured=%s)",
         settings.embedding_model,
