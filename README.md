@@ -61,7 +61,7 @@ separate interfaces and are never conflated.
 |--------|--------|-----|
 | API | FastAPI + Pydantic | Typed, self-documenting (`/docs`), async-ready, Vercel-friendly |
 | Embeddings | `gemini-embedding-001` | Current GA Gemini embedding model; asymmetric `RETRIEVAL_DOCUMENT`/`RETRIEVAL_QUERY` task types improve retrieval quality; Matryoshka dimensions |
-| LLM | `gemini-3.6-flash` | Current Flash model; fast and strong at grounded instruction-following |
+| LLM | `gemini-3.5-flash-lite` | Fast, quota-efficient synthesis for retrieved context |
 | Vector store | ChromaDB (`PersistentClient`, cosine) | Lightweight, persistent, metadata filtering; ideal for a local RAG prototype |
 | Markdown | Custom Obsidian-aware parser | Preserves headings/sections/code, extracts tags + `[[wikilinks]]` |
 
@@ -114,7 +114,7 @@ All configuration is environment-driven (see `.env.example`). Key ones:
 | `GEMINI_API_KEY` | *(empty)* | Google AI Studio key. Empty ⇒ offline fake providers. |
 | `EMBEDDING_MODEL` | `gemini-embedding-001` | Embedding model. |
 | `EMBEDDING_DIMENSIONS` | `768` | Truncated embedding size (Matryoshka). |
-| `LLM_MODEL` | `gemini-3.6-flash` | Generation model. |
+| `LLM_MODEL` | `gemini-3.5-flash-lite` | Generation model. |
 | `VAULT_DIR` | `./sample_vault` | Vault root; also the filesystem access boundary. |
 | `CHUNK_SIZE` / `CHUNK_OVERLAP` | `1400` / `200` | Chunking (characters). |
 | `CHROMA_DIR` | `./.chroma` | Vector store persistence dir. |
@@ -169,7 +169,7 @@ Example `/query` response:
      "path": "concepts/RAG Evaluation.md", "relevance": 0.83, "snippet": "..."}
   ],
   "query_used": "What metrics did I mention for evaluating RAG?",
-  "model": "gemini-3.6-flash"
+  "model": "gemini-3.5-flash-lite"
 }
 ```
 
