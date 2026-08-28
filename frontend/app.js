@@ -404,9 +404,12 @@ async function ask(question) {
   } catch (error) {
     document.querySelector("#thinking")?.remove();
     const rateLimited = error.status === 429 || /quota|resource_exhausted/i.test(error.message);
+    const providerBusy = /503|unavailable|high demand/i.test(error.message);
     addAssistantMessage({
       answer: rateLimited
         ? "The answer service is busy right now. Please wait a minute and try again."
+        : providerBusy
+          ? "The answer service is handling unusually high demand. Your vault is ready; please try your question again in a moment."
         : "The answer service is temporarily unavailable. Please try again shortly.",
       grounded: false,
       sources: [],
