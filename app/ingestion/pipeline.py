@@ -28,6 +28,7 @@ class IngestReport:
     vault_dir: str
     notes_total: int = 0
     notes_ingested: int = 0
+    notes_deleted: int = 0
     notes_skipped_unchanged: int = 0
     notes_empty: int = 0
     chunks_written: int = 0
@@ -63,6 +64,15 @@ def ingest_vault(
 
     notes = load_vault(vault_dir, settings)
     report.notes_total = len(notes)
+
+    # Keep the generated index in sync with the vault when notes are renamed or
+    # deleted. Without this, incremental ingestion would leave stale passages
+    # searchable until the next forced rebuild.
+    current_paths = {note.rel_path for note in notes}
+    stale_paths = set(existing) - current_paths
+    for rel_path in stale_paths:
+        store.delete_note(rel_path)
+    report.notes_deleted = len(stale_paths)
 
     pending_chunks: list[Chunk] = []
     for note in notes:

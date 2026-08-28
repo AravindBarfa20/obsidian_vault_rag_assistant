@@ -26,6 +26,7 @@ class IngestResponse(BaseModel):
     vault_dir: str
     notes_total: int
     notes_ingested: int
+    notes_deleted: int
     notes_skipped_unchanged: int
     notes_empty: int
     chunks_written: int
@@ -93,6 +94,8 @@ class HealthResponse(BaseModel):
     gemini_configured: bool
     indexed_chunks: int
     collection: str
+    index_state: str = Field(description="ready, indexing, or failed")
+    index_error: str | None = None
 
 
 class ErrorResponse(BaseModel):

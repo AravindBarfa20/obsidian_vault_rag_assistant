@@ -7,6 +7,8 @@ client rather than reconstructing them.
 
 from __future__ import annotations
 
+from threading import Lock
+
 from fastapi import Request
 
 from app.core.config import Settings, get_settings
@@ -16,6 +18,38 @@ from app.generation.answer_service import AnswerService
 from app.generation.llm_factory import LLM, build_llm
 from app.retrieval.retriever import Retriever
 from app.vectorstore.chroma_store import ChromaStore
+
+
+class IndexingStatus:
+    """Thread-safe status shared by background and request-driven ingestion."""
+
+    def __init__(self) -> None:
+        self._lock = Lock()
+        self._state = "ready"
+        self._error: str | None = None
+
+    def begin(self) -> bool:
+        """Mark an ingestion as running, unless another ingestion owns it."""
+        with self._lock:
+            if self._state == "indexing":
+                return False
+            self._state = "indexing"
+            self._error = None
+            return True
+
+    def complete(self) -> None:
+        with self._lock:
+            self._state = "ready"
+            self._error = None
+
+    def fail(self, error: Exception) -> None:
+        with self._lock:
+            self._state = "failed"
+            self._error = str(error) or "The vault could not be indexed."
+
+    def snapshot(self) -> tuple[str, str | None]:
+        with self._lock:
+            return self._state, self._error
 
 
 class Container:
@@ -62,3 +96,11 @@ def get_container(request: Request) -> Container:
         container = Container(get_settings())
         request.app.state.container = container
     return container
+
+
+def get_indexing_status(request: Request) -> IndexingStatus:
+    status: IndexingStatus | None = getattr(request.app.state, "indexing_status", None)
+    if status is None:
+        status = IndexingStatus()
+        request.app.state.indexing_status = status
+    return status

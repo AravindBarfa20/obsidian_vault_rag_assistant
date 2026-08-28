@@ -65,6 +65,11 @@
             <strong id="source-count">—</strong>
             <span>notes currently searchable</span>
           </div>
+          <label class="library-search">
+            <span class="visually-hidden">Filter indexed notes</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4" /></svg>
+            <input id="source-search" type="search" placeholder="Filter notes" autocomplete="off" />
+          </label>
           <div class="source-list" id="source-list" aria-live="polite">
             <div class="source-skeleton"></div>
             <div class="source-skeleton short"></div>
@@ -87,6 +92,14 @@
           </div>
 
           <div class="messages" id="messages" role="log" aria-live="polite" aria-relevant="additions">
+            <article class="indexing-note" id="indexing-note" role="status" hidden>
+              <div class="indexing-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+              <div>
+                <p class="eyebrow">Preparing your library</p>
+                <h3 id="indexing-title">Indexing your field notes</h3>
+                <p id="indexing-message">Retrieving structure and embedding passages. This usually takes under a minute.</p>
+              </div>
+            </article>
             <article class="welcome-note" id="welcome-note">
               <div class="specimen-mark" aria-hidden="true">
                 <svg viewBox="0 0 140 140">

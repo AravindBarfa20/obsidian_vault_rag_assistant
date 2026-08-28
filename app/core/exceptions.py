@@ -51,3 +51,10 @@ class VectorStoreError(RAGError):
 
     status_code = 500
     code = "vectorstore_error"
+
+
+class IndexingInProgressError(RAGError):
+    """The vault is being prepared and cannot answer queries yet."""
+
+    status_code = 503
+    code = "indexing_in_progress"

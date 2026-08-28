@@ -6,6 +6,7 @@ behaviour lives in the layered services, so this file is composition only.
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -13,11 +14,34 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api.dependencies import Container
+from app.api.dependencies import Container, IndexingStatus
 from app.api.routes import router
 from app.core.config import get_settings
 from app.core.exceptions import RAGError
 from app.core.logging import configure_logging, get_logger
+from app.ingestion.loader import resolve_vault_dir
+from app.ingestion.pipeline import ingest_vault
+
+
+async def _prepare_empty_index(app: FastAPI, logger) -> None:
+    """Build a missing local index without delaying the first page load."""
+    container: Container = app.state.container
+    status: IndexingStatus = app.state.indexing_status
+    try:
+        vault_dir = resolve_vault_dir(container.settings, None)
+        report = await asyncio.to_thread(
+            ingest_vault,
+            vault_dir,
+            container.store,
+            container.embedder,
+            container.settings,
+        )
+    except Exception as exc:  # surfaced through /health and the UI
+        status.fail(exc)
+        logger.exception("Initial vault indexing failed")
+    else:
+        status.complete()
+        logger.info("Initial vault indexing complete: %d chunks", report.chunks_written)
 
 
 def create_app() -> FastAPI:
@@ -44,6 +68,16 @@ def create_app() -> FastAPI:
     # Build services eagerly so misconfiguration surfaces at startup, not on the
     # first request.
     app.state.container = Container(settings)
+    app.state.indexing_status = IndexingStatus()
+
+    @app.on_event("startup")
+    async def prepare_empty_index() -> None:
+        """Serve the UI immediately, then prepare an empty ephemeral index."""
+        container: Container = app.state.container
+        if container.store.count() > 0:
+            return
+        app.state.indexing_status.begin()
+        app.state.index_task = asyncio.create_task(_prepare_empty_index(app, logger))
 
     @app.exception_handler(RAGError)
     async def handle_rag_error(_: Request, exc: RAGError) -> JSONResponse:

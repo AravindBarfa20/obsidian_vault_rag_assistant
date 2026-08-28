@@ -4,6 +4,8 @@ const state = {
   history: [],
   busy: false,
   sources: [],
+  indexState: "ready",
+  indexPoll: null,
 };
 
 const el = {
@@ -13,6 +15,7 @@ const el = {
   heroChunks: document.querySelector("#hero-chunks"),
   sourceCount: document.querySelector("#source-count"),
   sourceList: document.querySelector("#source-list"),
+  sourceSearch: document.querySelector("#source-search"),
   refreshSources: document.querySelector("#refresh-sources"),
   reindexButton: document.querySelector("#reindex-button"),
   messages: document.querySelector("#messages"),
@@ -23,6 +26,9 @@ const el = {
   clearChat: document.querySelector("#clear-chat"),
   modelLabel: document.querySelector("#model-label"),
   toast: document.querySelector("#toast"),
+  indexingNote: document.querySelector("#indexing-note"),
+  indexingTitle: document.querySelector("#indexing-title"),
+  indexingMessage: document.querySelector("#indexing-message"),
 };
 
 async function api(path, options = {}) {
@@ -51,32 +57,93 @@ function showToast(message) {
 async function loadHealth() {
   try {
     const health = await api("/health");
-    el.healthPill.className = "health-pill online";
-    el.healthLabel.textContent = health.gemini_configured ? "Ready" : "Demo mode";
+    applyIndexState(health);
     el.heroChunks.textContent = `${health.indexed_chunks} passages`;
-    el.modelLabel.textContent = "Answers grounded in indexed notes";
   } catch {
     el.healthPill.className = "health-pill offline";
     el.healthLabel.textContent = "API unavailable";
   }
 }
 
-function renderSources(data) {
-  state.sources = data.notes || [];
-  el.sourceCount.textContent = data.total_notes;
-  el.heroNotes.textContent = `${data.total_notes} notes`;
-  el.heroChunks.textContent = `${data.total_chunks} passages`;
+function updateQueryControls() {
+  const unavailable = state.busy || state.indexState === "indexing";
+  el.askButton.disabled = unavailable;
+  el.input.disabled = unavailable;
+  document.querySelectorAll("[data-question]").forEach((button) => {
+    button.disabled = unavailable;
+  });
+}
+
+function scheduleIndexPoll() {
+  clearTimeout(state.indexPoll);
+  if (state.indexState !== "indexing") return;
+  state.indexPoll = setTimeout(() => loadHealth(), 2500);
+}
+
+function applyIndexState(health) {
+  const previous = state.indexState;
+  state.indexState = health.index_state || "ready";
+  const indexing = state.indexState === "indexing";
+  const failed = state.indexState === "failed";
+
+  el.healthPill.className = `health-pill ${failed ? "offline" : "online"}`;
+  el.healthLabel.textContent = indexing
+    ? "Preparing library"
+    : failed
+      ? "Index needs attention"
+      : health.gemini_configured ? "Ready" : "Demo mode";
+  el.modelLabel.textContent = indexing
+    ? "Indexing your vault in the background"
+    : "Answers grounded in indexed notes";
+  el.input.placeholder = indexing
+    ? "Your notes are being prepared…"
+    : "Ask a question about your notes…";
+  el.indexingNote.hidden = !indexing && !failed;
+  el.indexingNote.classList.toggle("failed", failed);
+  el.indexingTitle.textContent = failed ? "The vault needs a refresh" : "Indexing your field notes";
+  el.indexingMessage.textContent = failed
+    ? "The library could not be prepared automatically. Use Refresh vault index to try again."
+    : "Retrieving structure and embedding passages. This usually takes under a minute.";
+  el.reindexButton.disabled = indexing;
+  el.refreshSources.disabled = indexing;
+  el.sourceSearch.disabled = indexing;
+  updateQueryControls();
+  renderSourceList();
+  scheduleIndexPoll();
+
+  if (previous === "indexing" && state.indexState === "ready") {
+    loadSources({ announce: true });
+    showToast("Your vault is ready to explore.");
+  }
+}
+
+function renderSourceList() {
+  const query = el.sourceSearch.value.trim().toLocaleLowerCase();
+  const visibleSources = query
+    ? state.sources.filter((source) => {
+        const searchable = [source.title, source.source, source.path, source.tags]
+          .filter(Boolean)
+          .join(" ")
+          .toLocaleLowerCase();
+        return searchable.includes(query);
+      })
+    : state.sources;
+
   el.sourceList.replaceChildren();
 
-  if (!state.sources.length) {
+  if (!visibleSources.length) {
     const empty = document.createElement("p");
-    empty.className = "source-path";
-    empty.textContent = "No notes indexed yet.";
+    empty.className = "source-empty";
+    empty.textContent = state.sources.length
+      ? "No notes match this filter."
+      : state.indexState === "indexing"
+        ? "Notes will appear here as indexing completes."
+        : "No notes indexed yet.";
     el.sourceList.append(empty);
     return;
   }
 
-  state.sources.forEach((source) => {
+  visibleSources.forEach((source) => {
     const item = document.createElement("article");
     item.className = "source-item";
     const title = document.createElement("div");
@@ -97,6 +164,14 @@ function renderSources(data) {
     item.append(title, descriptor);
     el.sourceList.append(item);
   });
+}
+
+function renderSources(data) {
+  state.sources = data.notes || [];
+  el.sourceCount.textContent = data.total_notes;
+  el.heroNotes.textContent = `${data.total_notes} notes`;
+  el.heroChunks.textContent = `${data.total_chunks} passages`;
+  renderSourceList();
 }
 
 async function loadSources({ announce = false } = {}) {
@@ -260,9 +335,9 @@ function addAssistantMessage(result) {
       const section = document.createElement("div");
       section.className = "citation-section";
       section.textContent = source.section || source.path;
-      const snippet = document.createElement("p");
+      const snippet = document.createElement("div");
       snippet.className = "citation-snippet";
-      snippet.textContent = source.snippet;
+      appendRichAnswer(snippet, source.snippet, [], `${messageId}-evidence-${sourceIndex}`);
       card.append(top, section, snippet);
       grid.append(card);
     });
@@ -295,8 +370,7 @@ function addThinking() {
 
 function setBusy(busy) {
   state.busy = busy;
-  el.askButton.disabled = busy;
-  el.input.disabled = busy;
+  updateQueryControls();
   el.askButton.querySelector("span").textContent = busy ? "Reading" : "Ask";
 }
 
@@ -374,13 +448,15 @@ el.clearChat.addEventListener("click", () => {
   el.input.focus();
 });
 el.refreshSources.addEventListener("click", () => loadSources({ announce: true }));
+el.sourceSearch.addEventListener("input", renderSourceList);
 el.reindexButton.addEventListener("click", async () => {
   el.reindexButton.disabled = true;
   el.reindexButton.querySelector("span").textContent = "Refreshing index…";
   try {
     const report = await api("/ingest", { method: "POST", body: JSON.stringify({ force: false }) });
     await loadSources();
-    showToast(`${report.notes_ingested} changed notes indexed; ${report.notes_skipped_unchanged} unchanged.`);
+    const removed = report.notes_deleted ? `; ${report.notes_deleted} removed` : "";
+    showToast(`${report.notes_ingested} changed notes indexed${removed}; ${report.notes_skipped_unchanged} unchanged.`);
   } catch (error) {
     showToast(error.message);
   } finally {
