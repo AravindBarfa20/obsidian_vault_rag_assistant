@@ -72,7 +72,7 @@ def render_source(source: dict) -> None:
     relevance = source.get("relevance", 0)
     title = source.get("title", source.get("source", "Source"))
     section = source.get("section") or "Relevant passage"
-    with st.expander(f"{title} · {relevance:.0%} match", expanded=False):
+    with st.expander(f"{title} · {section} · {relevance:.0%} match", expanded=False):
         st.caption(f"{source.get('path', '')} › {section}")
         st.write(source.get("snippet", ""))
 

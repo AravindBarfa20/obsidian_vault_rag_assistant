@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from app.core.exceptions import ConfigurationError, GenerationError
 from app.core.logging import get_logger
+from app.generation.output_cleaner import clean_answer_text
 
 logger = get_logger(__name__)
 
@@ -56,7 +57,7 @@ class GeminiClient:
             logger.exception("Gemini generation failed")
             raise GenerationError(f"LLM call failed: {exc}") from exc
 
-        text = (response.text or "").strip()
+        text = clean_answer_text(response.text or "")
         if not text:
             raise GenerationError("LLM returned an empty response.")
         return text

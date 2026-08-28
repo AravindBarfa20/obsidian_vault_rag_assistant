@@ -11,6 +11,7 @@ import re
 
 from app.core.exceptions import ConfigurationError, GenerationError
 from app.core.logging import get_logger
+from app.generation.output_cleaner import clean_answer_text
 
 logger = get_logger(__name__)
 
@@ -24,7 +25,7 @@ def _final_answer(raw_text: str) -> str:
     ordinary completion text. That is implementation detail, not cited vault
     evidence, and must never appear in the assistant UI.
     """
-    text = _THINKING_BLOCK.sub("", raw_text).strip()
+    text = clean_answer_text(_THINKING_BLOCK.sub("", raw_text))
     if text.lower().startswith("<think>"):
         # An unclosed block usually means generation stopped before the model
         # reached its answer. Do not present an incomplete private trace.
