@@ -25,6 +25,8 @@ vault." Do not guess or fabricate.
 only partially answer, say what is supported and what is missing.
 5. Answer in natural prose. Do not dump raw note text; synthesise it.
 6. Be concise and specific. Prefer the user's own terminology from the notes.
+7. Return only the final answer for the user. Never include analysis, reasoning
+steps, or tags such as <think>.
 """
 
 NO_CONTEXT_MESSAGE = (
