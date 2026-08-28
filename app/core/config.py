@@ -26,9 +26,12 @@ class Settings(BaseSettings):
     embedding_model: str = "gemini-embedding-001"
     embedding_dimensions: int = 768
     embedding_batch_size: int = 32
-    # Stable, high-throughput text generation for the small grounded contexts
-    # used by this assistant. Kept separate from the embedding model.
+    # Generation is independently swappable; embeddings stay on Gemini so a
+    # provider change never invalidates the existing vector index.
+    generation_provider: str = "auto"
     llm_model: str = "gemini-3.7-flash"
+    groq_api_key: str = Field(default="", description="Groq API key for generation.")
+    groq_model: str = "qwen/qwen3.6-27b"
     llm_temperature: float = 0.0
     llm_max_output_tokens: int = 2048
 
@@ -92,9 +95,21 @@ class Settings(BaseSettings):
             return None
         return value
 
+    @field_validator("generation_provider")
+    @classmethod
+    def _validate_generation_provider(cls, value: str) -> str:
+        provider = value.strip().lower()
+        if provider not in {"auto", "gemini", "groq"}:
+            raise ValueError("GENERATION_PROVIDER must be auto, gemini, or groq.")
+        return provider
+
     @property
     def has_gemini_key(self) -> bool:
         return bool(self.gemini_api_key.strip())
+
+    @property
+    def has_groq_key(self) -> bool:
+        return bool(self.groq_api_key.strip())
 
 
 @lru_cache(maxsize=1)

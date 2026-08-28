@@ -69,7 +69,7 @@ separate interfaces and are never conflated.
 |--------|--------|-----|
 | API | FastAPI + Pydantic | Typed, self-documenting (`/docs`), async-ready, Vercel-friendly |
 | Embeddings | `gemini-embedding-001` | Current GA Gemini embedding model; asymmetric `RETRIEVAL_DOCUMENT`/`RETRIEVAL_QUERY` task types improve retrieval quality; Matryoshka dimensions |
-| LLM | `gemini-3.7-flash` | Latest stable Gemini Flash model for grounded synthesis |
+| LLM | Groq `qwen/qwen3.6-27b` or Gemini Flash | Swappable grounded generation; Gemini remains the embedding provider |
 | Vector store | ChromaDB (`PersistentClient`, cosine) | Lightweight, persistent, metadata filtering; ideal for a local RAG prototype |
 | Markdown | Custom Obsidian-aware parser | Preserves headings/sections/code, extracts tags + `[[wikilinks]]` |
 
@@ -119,7 +119,10 @@ All configuration is environment-driven (see `.env.example`). Key ones:
 
 | Variable | Default | Meaning |
 |----------|---------|---------|
-| `GEMINI_API_KEY` | *(empty)* | Google AI Studio key. Empty ⇒ offline fake providers. |
+| `GEMINI_API_KEY` | *(empty)* | Google AI Studio key for embeddings. Empty ⇒ offline fake providers. |
+| `GROQ_API_KEY` | *(empty)* | Optional Groq generation key. |
+| `GENERATION_PROVIDER` | `auto` | `auto`, `groq`, or `gemini`; `auto` prefers Groq when configured. |
+| `GROQ_MODEL` | `qwen/qwen3.6-27b` | Groq answer-generation model. |
 | `EMBEDDING_MODEL` | `gemini-embedding-001` | Embedding model. |
 | `EMBEDDING_DIMENSIONS` | `768` | Truncated embedding size (Matryoshka). |
 | `LLM_MODEL` | `gemini-3.7-flash` | Generation model. |
@@ -267,7 +270,8 @@ a claim of production accuracy on arbitrary vaults.
 The repository includes a single-app Streamlit entrypoint at
 `streamlit_app.py`. It reuses the same ingestion, retrieval, grounding and
 citation pipeline as the API. Follow the [Streamlit deployment guide](docs/deployment-streamlit.md)
-and add `GEMINI_API_KEY` in Streamlit secrets—never commit a local `.env` file.
+and add both `GEMINI_API_KEY` (embeddings) and `GROQ_API_KEY` (answers) in
+Streamlit secrets—never commit a local `.env` file.
 
 ### FastAPI / Vercel
 

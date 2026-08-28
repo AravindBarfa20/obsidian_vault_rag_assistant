@@ -20,7 +20,7 @@ flowchart TD
         QE --> VS[Vector Search<br/>oversample k x m]
         VS --> G{Relevance gate<br/>+ per-note diversity}
         G -->|nothing clears threshold| NA[No-answer<br/>LLM never called]
-        G -->|grounded context| GEN[Gemini generation<br/>grounded + cited]
+        G -->|grounded context| GEN[Groq or Gemini generation<br/>grounded + cited]
         GEN --> ANS[Answer + Sources]
         NA --> ANS
     end
@@ -45,7 +45,7 @@ discouraged by prompt wording.
 | Embeddings | `app/embeddings` | `EmbeddingProvider` interface + Gemini/fake impls |
 | Vector store | `app/vectorstore` | ChromaDB: upsert, query, incremental hashes |
 | Retrieval | `app/retrieval` | Embed query, gate, diversify |
-| Generation | `app/generation` | Prompt, condensation, Gemini/fake LLM, answer service |
+| Generation | `app/generation` | Prompt, condensation, Groq/Gemini/fake LLM, answer service |
 | API | `app/api` | FastAPI routes + dependency wiring |
 | Models | `app/models` | Domain dataclasses + API schemas |
 

@@ -27,5 +27,5 @@ class FakeLLM:
         return (
             "Based on your notes, here is what is supported by the retrieved "
             "context [S1]. (This is a deterministic offline response; configure "
-            "GEMINI_API_KEY for real generation.)"
+            "a Gemini or Groq generation key for real answers.)"
         )

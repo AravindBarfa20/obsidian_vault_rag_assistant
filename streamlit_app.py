@@ -32,6 +32,12 @@ def configure_runtime() -> None:
         os.environ["GEMINI_API_KEY"] = str(key)
     if model := secrets.get("LLM_MODEL"):
         os.environ["LLM_MODEL"] = str(model)
+    if key := secrets.get("GROQ_API_KEY"):
+        os.environ["GROQ_API_KEY"] = str(key)
+    if provider := secrets.get("GENERATION_PROVIDER"):
+        os.environ["GENERATION_PROVIDER"] = str(provider)
+    if model := secrets.get("GROQ_MODEL"):
+        os.environ["GROQ_MODEL"] = str(model)
 
 
 @st.cache_resource(show_spinner=False)
@@ -102,8 +108,12 @@ def main() -> None:
     inject_style()
     settings, container = services()
     if not settings.has_gemini_key:
-        st.error("This deployment needs its Gemini API key configured before it can search the vault.")
+        st.error("This deployment needs its Gemini API key configured before it can index and search the vault.")
         st.code('GEMINI_API_KEY = "your-key"', language="toml")
+        st.stop()
+    if settings.generation_provider == "groq" and not settings.has_groq_key:
+        st.error("Groq generation is selected, but its API key is missing.")
+        st.code('GROQ_API_KEY = "gsk_your-key"', language="toml")
         st.stop()
 
     try:
@@ -172,8 +182,7 @@ def main() -> None:
             try:
                 result = container.answer_service.answer(question=question, history=history)
             except RAGError as exc:
-                st.error("Gemini is temporarily busy. Your vault is indexed; please try again shortly.")
-                st.caption(f"Service detail: {exc.message}")
+                st.error("The answer provider is temporarily busy. Your vault is indexed; please try again shortly.")
                 return
             except Exception:
                 st.error("The answer service is temporarily unavailable. Please try again shortly.")

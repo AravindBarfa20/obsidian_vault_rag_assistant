@@ -16,11 +16,14 @@ Before deploying, open **App settings → Secrets** and paste:
 
 ```toml
 GEMINI_API_KEY = "your-production-Gemini-key"
-LLM_MODEL = "gemini-3.7-flash"
+GROQ_API_KEY = "gsk_your-production-Groq-key"
+GENERATION_PROVIDER = "groq"
+GROQ_MODEL = "qwen/qwen3.6-27b"
 ```
 
-The key is stored by Streamlit and is never committed to Git. Use the separate
-deployment key, not a local `.env` file.
+The keys are stored by Streamlit and are never committed to Git. Gemini is used
+for embeddings/indexing; Groq generates the grounded answer. Use separate
+deployment keys, not a local `.env` file.
 
 ## 3. What to expect on free hosting
 
@@ -36,5 +39,5 @@ After the app is live, ask:
 > What is RAG and why is retrieval important?
 
 You should see a grounded answer plus expandable cited passages from the sample
-vault. A Gemini `503` means the upstream model is temporarily busy, not that
+vault. A provider `503` means the upstream model is temporarily busy, not that
 the vault index has failed.

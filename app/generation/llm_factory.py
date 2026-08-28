@@ -1,4 +1,4 @@
-"""Select a generation LLM from configuration (Gemini, else offline FakeLLM)."""
+"""Select a generation LLM from configuration, or use offline FakeLLM."""
 
 from __future__ import annotations
 
@@ -18,7 +18,18 @@ class LLM(Protocol):
 
 
 def build_llm(settings: Settings) -> LLM:
-    if settings.has_gemini_key:
+    if settings.generation_provider in {"auto", "groq"} and settings.has_groq_key:
+        from app.generation.groq_client import GroqClient
+
+        logger.info("Using Groq LLM: %s", settings.groq_model)
+        return GroqClient(
+            api_key=settings.groq_api_key,
+            model_name=settings.groq_model,
+            temperature=settings.llm_temperature,
+            max_output_tokens=settings.llm_max_output_tokens,
+        )
+
+    if settings.generation_provider in {"auto", "gemini"} and settings.has_gemini_key:
         from app.generation.gemini_client import GeminiClient
 
         logger.info("Using Gemini LLM: %s", settings.llm_model)
@@ -31,5 +42,6 @@ def build_llm(settings: Settings) -> LLM:
 
     from app.generation.fake_llm import FakeLLM
 
-    logger.warning("No GEMINI_API_KEY set -> using FakeLLM (offline mode).")
+    requested = settings.generation_provider.upper()
+    logger.warning("No configured %s generation provider -> using FakeLLM.", requested)
     return FakeLLM()
