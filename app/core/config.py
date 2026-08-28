@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     embedding_batch_size: int = 32
     # Stable, high-throughput text generation for the small grounded contexts
     # used by this assistant. Kept separate from the embedding model.
-    llm_model: str = "gemini-2.5-flash-lite"
+    llm_model: str = "gemini-3.7-flash"
     llm_temperature: float = 0.0
     llm_max_output_tokens: int = 2048
 
