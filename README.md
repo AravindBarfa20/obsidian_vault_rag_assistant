@@ -260,7 +260,16 @@ a claim of production accuracy on arbitrary vaults.
 - Server-side sessions for multi-turn memory.
 - Streaming responses; citation span highlighting.
 
-## Deployment (Vercel)
+## Deployment
+
+### Streamlit Community Cloud (recommended free demo)
+
+The repository includes a single-app Streamlit entrypoint at
+`streamlit_app.py`. It reuses the same ingestion, retrieval, grounding and
+citation pipeline as the API. Follow the [Streamlit deployment guide](docs/deployment-streamlit.md)
+and add `GEMINI_API_KEY` in Streamlit secrets—never commit a local `.env` file.
+
+### FastAPI / Vercel
 
 See [docs/deployment-vercel.md](docs/deployment-vercel.md). Summary: the app is
 Vercel-compatible, but ChromaDB's on-disk persistence is not serverless-durable

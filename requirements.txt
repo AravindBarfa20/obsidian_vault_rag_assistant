@@ -4,6 +4,11 @@ uvicorn[standard]==0.34.0
 pydantic==2.13.4
 pydantic-settings==2.7.1
 
+# --- Streamlit deployment UI ---
+# 1.50.0 is the newest tested version that does not pull Starlette 1.x, which
+# would conflict with this project's FastAPI pin.
+streamlit==1.50.0
+
 # --- LLM + embeddings (Gemini, current unified SDK) ---
 google-genai==2.20.0
 
